@@ -1,0 +1,10 @@
+services:
+  db:
+    image: mysql:latest
+    container_name: gopher-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=my-secret
+      - MYSQL_USER=gopher
+      - MYSQL_PASSWORD=my-password
+    ports:
+      - "3306:3306"
