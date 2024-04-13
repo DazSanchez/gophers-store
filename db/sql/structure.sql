@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS category(
 );
 
 CREATE TABLE IF NOT EXISTS gopher(
-  id INT UNSIGNED PRIMARY KEY,
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   category_id INT UNSIGNED,
   status ENUM('pending', 'available', 'sold') DEFAULT 'pending',
