@@ -1,23 +1,18 @@
 package query
 
-const (
-	FindGopherById = `
-		SELECT g.id, g.name, g.status, c.id, c.name 
-		FROM gopher AS g 
-			INNER JOIN category AS c ON g.category_id = c.id
-		WHERE g.id = ?;
-	`
-
-	FindGopherTags = `
-		SELECT t.id, t.name
-		FROM gopher_tag AS gt
-			INNER JOIN tag AS t ON gt.tag_id = t.id
-		WHERE gt.gopher_id = ?;
-	`
-
-	FindGopherPhotoUrls = `
-		SELECT gpu.photo_url
-		FROM gopher_photo_url AS gpu
-		WHERE gpu.gopher_id = ?;
-	`
+import (
+	"com.github.dazsanchez/gophers-store/model"
+	sq "github.com/Masterminds/squirrel"
 )
+
+// FindGopherById selects a record from gopher table while also joining with category table by gopher.category_id field.
+func FindGopherById(id int64) sq.SelectBuilder {
+	return sq.Select("g.id, g.name, g.status, c.id, c.name").From("gopher AS g").InnerJoin("category AS c ON g.category_id = c.id").Where(sq.Eq{
+		"g.id": id,
+	})
+}
+
+// CreateGopher inserts into gopher table the given model.
+func CreateGopher(gopher model.Gopher) sq.InsertBuilder {
+	return sq.Insert("gopher").Columns("name", "category_id", "status").Values(gopher.Name, gopher.Category.Id, gopher.Status)
+}

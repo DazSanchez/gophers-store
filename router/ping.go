@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// addPingRoutes registers RESTful controllers under /ping endpoint.
 func addPingRoutes(rg *gin.RouterGroup) {
 	r := rg.Group("ping")
 

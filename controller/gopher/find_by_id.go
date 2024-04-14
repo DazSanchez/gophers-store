@@ -1,31 +1,32 @@
 package gopher
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
-	"com.github.dazsanchez/gophers-store/repository"
+	"com.github.dazsanchez/gophers-store/service"
 	"github.com/gin-gonic/gin"
 )
 
 func FindByIdController(ctx *gin.Context) {
+	defer func() {
+		if r := recover(); r != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"message": "can't fetch gopher",
+				"error":   r,
+			})
+		}
+	}()
+
 	idStr := ctx.Params.ByName("id")
-	id, err := strconv.Atoi(idStr)
+	id, err := strconv.ParseInt(idStr, 10, 64)
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": "invalid id",
-		})
+		log.Panicln("invalid id format")
 	}
 
-	g, err := repository.Gopher.FindById(id)
-
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"message": "can't fetch gopher",
-			"error":   err.Error(),
-		})
-	}
+	g := service.Gopher.FindById(id)
 
 	ctx.JSON(http.StatusOK, g)
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// addTagRoutes registers RESTful controllers under /tags endpoint.
 func addTagRoutes(rg *gin.RouterGroup) {
 	r := rg.Group("tags")
 

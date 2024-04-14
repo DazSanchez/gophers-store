@@ -4,9 +4,12 @@ import (
 	"database/sql"
 
 	"com.github.dazsanchez/gophers-store/model"
+	sq "github.com/Masterminds/squirrel"
 )
 
-func ToGopher(row *sql.Row) (model.Gopher, error) {
+// ToGopher is a serializer to convert sql.Rows to a Gopher model.
+// It panics is there's an error while scanning.
+func ToGopher(row sq.RowScanner) (model.Gopher, error) {
 	var c model.Category
 	var g model.Gopher
 
@@ -21,6 +24,8 @@ func ToGopher(row *sql.Row) (model.Gopher, error) {
 	return g, nil
 }
 
+// ToPhotoUrls is a serializer to convert sql.Rows to a slice of strings.
+// It panics is there's an error while scanning.
 func ToPhotoUrls(rows *sql.Rows) ([]string, error) {
 	var us []string
 

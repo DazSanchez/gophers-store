@@ -6,6 +6,8 @@ import (
 	"com.github.dazsanchez/gophers-store/model"
 )
 
+// ToCategories is a serializer to convert sql.Rows to a slice of Category model.
+// It panics is there's an error while scanning.
 func ToCategories(rows *sql.Rows) ([]model.Category, error) {
 	var cs []model.Category
 

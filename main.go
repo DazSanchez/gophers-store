@@ -18,7 +18,7 @@ func main() {
 
 	defer db.Close()
 
-	router.Init(app)
+	router.API.Init(app)
 
 	app.Run() // listen and serve on 0.0.0.0:8080
 }

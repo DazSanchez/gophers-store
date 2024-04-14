@@ -3,20 +3,23 @@ package category
 import (
 	"net/http"
 
-	"com.github.dazsanchez/gophers-store/repository"
+	"com.github.dazsanchez/gophers-store/service"
 	"github.com/gin-gonic/gin"
 )
 
+// FindAllController returns all available Categories in the database.
+// It panics if there's a problem while retrieving data.
 func FindAllController(ctx *gin.Context) {
-	categories, err := repository.Category.FindAll()
+	defer func() {
+		if r := recover(); r != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"message": "can't fetch categories",
+				"error":   r,
+			})
+		}
+	}()
 
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"message": "can't fetch categories",
-		})
+	cs := service.Category.FindAll()
 
-		return
-	}
-
-	ctx.JSON(http.StatusOK, categories)
+	ctx.JSON(http.StatusOK, cs)
 }

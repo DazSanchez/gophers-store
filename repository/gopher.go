@@ -9,67 +9,42 @@ import (
 	"com.github.dazsanchez/gophers-store/scanner"
 )
 
-type gopherRepository struct{}
+type GopherRepository struct{}
 
-var Gopher gopherRepository = gopherRepository{}
+// Gopher allows to manipulate database's gopher table.
+var Gopher GopherRepository = GopherRepository{}
 
-func (r gopherRepository) FindById(id int) (g model.Gopher, err error) {
-	gStmt, err := db.Instance.Prepare(query.FindGopherById)
-
-	if err != nil {
-		log.Panicln("can't fetch gopher: ", err)
-		return g, err
-	}
-
-	defer gStmt.Close()
-
-	result := gStmt.QueryRow(id)
-	g, err = scanner.ToGopher(result)
+// FindById retrieves a record that matches the given gopherId as []Gopher model.
+// It panics if can't retrieve the data or can't parse to []Gopher.
+func (r GopherRepository) FindById(id int64) model.Gopher {
+	gRow := query.FindGopherById(id).RunWith(db.Instance).QueryRow()
+	g, err := scanner.ToGopher(gRow)
 
 	if err != nil {
 		log.Panicln("can't parse gopher: ", err)
-		return g, err
 	}
 
-	uStmt, err := db.Instance.Prepare(query.FindGopherPhotoUrls)
+	return g
+}
+
+// Create creates a record based on the given Gopher model.
+// It panics if can't retrieve insert data or can't parse the result into Gopher.
+func (r GopherRepository) Create(g model.Gopher) model.Gopher {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Panicln("can't insert gopher: ", r)
+		}
+	}()
+
+	rs, err := query.CreateGopher(g).RunWith(db.Instance).Exec()
 	if err != nil {
-		log.Panicln("can't fetch gopher photo urls: ", err)
-		return g, err
+		log.Panicln(err)
 	}
 
-	defer uStmt.Close()
-
-	uRows, err := uStmt.Query(g.Id)
+	id, err := rs.LastInsertId()
 	if err != nil {
-		log.Panicln("can't fetch gopher photo urls: ", err)
-		return g, err
+		log.Panicln("can't get last id")
 	}
 
-	urls, err := scanner.ToPhotoUrls(uRows)
-	if err != nil {
-		log.Panicln("can't parse gopher photo urls: ", err)
-		return g, err
-	}
-
-	g.PhotoUrls = urls
-
-	tStmt, err := db.Instance.Prepare(query.FindGopherTags)
-	tRows, err := tStmt.Query(g.Id)
-
-	if err != nil {
-		log.Panicln("can't fetch gopher tags: ", err)
-		return g, err
-	}
-
-	defer tRows.Close()
-
-	tags, err := scanner.ToTags(tRows)
-	if err != nil {
-		log.Panicln("can't parse gopher tags: ", err)
-		return g, err
-	}
-
-	g.Tags = tags
-
-	return g, err
+	return r.FindById(id)
 }

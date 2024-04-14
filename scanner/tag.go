@@ -6,6 +6,8 @@ import (
 	"com.github.dazsanchez/gophers-store/model"
 )
 
+// ToTags is a serializer to convert sql.Rows to a slice of Tag model.
+// It panics is there's an error while scanning.
 func ToTags(rows *sql.Rows) ([]model.Tag, error) {
 	var ts []model.Tag
 

@@ -5,12 +5,16 @@ import (
 	"log"
 )
 
+// Instance is a Singleton that holds a reference to a opened database connection.
 var Instance *sql.DB
 
+// IDBManager is a generic interface Database conectors can implement to abstract connection details.
 type IDBManager interface {
+	// Connect initialize a new database connection and saves it as a Singleton.
 	Connect() (*sql.DB, error)
 }
 
+// Init creates a new database connection instance using the given IDBManager
 func Init(manager IDBManager) {
 	log.Println("Init DB connection")
 
@@ -22,6 +26,7 @@ func Init(manager IDBManager) {
 	Instance = db
 }
 
+// Close terminates the current database Singleton connection if any.
 func Close() {
 	if Instance != nil {
 		log.Println("Close DB connection")

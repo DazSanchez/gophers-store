@@ -9,16 +9,18 @@ import (
 	"com.github.dazsanchez/gophers-store/scanner"
 )
 
-type categoryRepository struct{}
+type CategoryRepository struct{}
 
-var Category categoryRepository = categoryRepository{}
+// Category allows to manipulate database's category table.
+var Category CategoryRepository = CategoryRepository{}
 
-func (r categoryRepository) FindAll() ([]model.Category, error) {
-	rows, err := db.Instance.Query(query.FindAllCategories)
+// FindAll retrieves all records from the repository as []Category model.
+// It panics if can't retrieve data or can't parse into []Category model.
+func (r CategoryRepository) FindAll() ([]model.Category, error) {
+	rows, err := query.FindAllCategories.RunWith(db.Instance).Query()
 
 	if err != nil {
 		log.Panicln("can't fetch categories: ", err)
-		return nil, err
 	}
 
 	defer rows.Close()
