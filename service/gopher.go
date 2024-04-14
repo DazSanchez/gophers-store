@@ -1,6 +1,9 @@
 package service
 
 import (
+	"log"
+
+	"com.github.dazsanchez/gophers-store/db"
 	"com.github.dazsanchez/gophers-store/dto"
 	"com.github.dazsanchez/gophers-store/repository"
 )
@@ -32,9 +35,26 @@ func (s gopherService) FindById(id int64) dto.GopherDTO {
 func (s gopherService) Create(src dto.CreateGopherDTO) dto.GopherDTO {
 	var g dto.GopherDTO
 
-	m := s.gr.Create(src.ToModel())
-	m.PhotoUrls = s.gpu.AddUrls(m.Id, src.PhotoUrls)
-	m.Tags = s.gt.AddTags(m.Id, src.Tags.Ids())
+	tx, err := db.TxBegin()
+	if err != nil {
+		log.Panicln("can't start transaction: ", err)
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			log.Println("recover from panic, rolling back Tx: ", r)
+			tx.Rollback()
+		}
+	}()
+
+	m := s.gr.CreateWithTx(tx, src.ToModel())
+	m.PhotoUrls = s.gpu.AddUrlsWithTx(tx, m.Id, src.PhotoUrls)
+	m.Tags = s.gt.AddTagsWithTx(tx, m.Id, src.Tags.Ids())
+
+	err = tx.Commit()
+	if err != nil {
+		log.Panicln("can't commit transaction: ", err)
+	}
 
 	g.FromModel(m)
 

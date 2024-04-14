@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"log"
 )
@@ -32,4 +33,11 @@ func Close() {
 		log.Println("Close DB connection")
 		Instance.Close()
 	}
+}
+
+// TxBegin creates a Transaction context to run queries upon.
+// It uses a Background context instance to create the Transaction.
+// It panics if can't create the Transaction.
+func TxBegin() (*sql.Tx, error) {
+	return Instance.BeginTx(context.Background(), nil)
 }

@@ -9,7 +9,7 @@ import (
 // ToTags is a serializer to convert sql.Rows to a slice of Tag model.
 // It panics is there's an error while scanning.
 func ToTags(rows *sql.Rows) ([]model.Tag, error) {
-	var ts []model.Tag
+	ts := make([]model.Tag, 0)
 
 	for rows.Next() {
 		var t model.Tag
@@ -21,10 +21,6 @@ func ToTags(rows *sql.Rows) ([]model.Tag, error) {
 		}
 
 		ts = append(ts, t)
-	}
-
-	if ts == nil {
-		ts = make([]model.Tag, 0)
 	}
 
 	return ts, nil

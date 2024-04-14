@@ -27,7 +27,7 @@ func ToGopher(row sq.RowScanner) (model.Gopher, error) {
 // ToPhotoUrls is a serializer to convert sql.Rows to a slice of strings.
 // It panics is there's an error while scanning.
 func ToPhotoUrls(rows *sql.Rows) ([]string, error) {
-	var us []string
+	us := make([]string, 0)
 
 	for rows.Next() {
 		var u string
@@ -39,10 +39,6 @@ func ToPhotoUrls(rows *sql.Rows) ([]string, error) {
 		}
 
 		us = append(us, u)
-	}
-
-	if us == nil {
-		us = make([]string, 0)
 	}
 
 	return us, nil
